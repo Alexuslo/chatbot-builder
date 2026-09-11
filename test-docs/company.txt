@@ -1,0 +1,40 @@
+# Company Profile: TechNova Solutions
+
+## About Us
+TechNova Solutions is a leading software development company founded in 2018, headquartered in San Francisco, California. We specialize in building AI-powered business solutions for enterprise clients.
+
+## Our Services
+- **Custom Software Development** — Full-stack web and mobile applications
+- **AI & Machine Learning** — Predictive analytics, NLP, computer vision
+- **Cloud Infrastructure** — AWS, Azure, GCP migration and management
+- **Data Engineering** — ETL pipelines, data warehouses, real-time analytics
+
+## Team
+- CEO: Sarah Chen (ex-Google, 15 years in tech)
+- CTO: Marcus Williams (ex-Amazon, AWS certified)
+- Head of AI: Dr. Aisha Patel (PhD Stanford, 20+ publications)
+- VP Sales: James O'Brien (10 years enterprise sales)
+
+## Clients
+We work with Fortune 500 companies including:
+- Financial institutions (banking, insurance)
+- Healthcare providers
+- Retail and e-commerce
+- Manufacturing and logistics
+
+## Contact
+- Website: www.technova.example.com
+- Email: info@technova.example.com
+- Phone: +1 (415) 555-0123
+- Address: 123 Market Street, Suite 500, San Francisco, CA 94105
+
+## Pricing
+Our services are billed hourly or per project:
+- Standard developers: $150/hour
+- Senior developers: $200/hour
+- AI/ML specialists: $250/hour
+- Project-based pricing available for large engagements
+
+## Working Hours
+Monday — Friday, 9:00 AM — 6:00 PM PST
+24/7 support available for enterprise clients

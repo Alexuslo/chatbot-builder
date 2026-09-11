@@ -1,0 +1,68 @@
+# FAQ: FitTrack Fitness App
+
+## General Questions
+
+### What is FitTrack?
+FitTrack is a mobile fitness application that helps you track workouts, nutrition, and health goals. Available on iOS and Android.
+
+### Is FitTrack free?
+FitTrack offers a free tier with basic features. FitTrack Pro ($9.99/month or $79.99/year) unlocks all features including advanced analytics, personalized plans, and priority support.
+
+### How do I create an account?
+Download the app, tap "Sign Up", enter your email and password, or sign up with Google/Apple. You'll need to verify your email address.
+
+## Workout Features
+
+### How does the workout tracker work?
+Log your exercises by searching our database of 500+ exercises. Track sets, reps, and weights. FitTrack automatically calculates volume and suggests progressive overload.
+
+### Can I create custom workouts?
+Yes! Go to My Workouts → Create New. Add exercises, set reps and weights, and save as a template for future use.
+
+### Does FitTrack have workout plans?
+Yes. We offer 50+ pre-built plans for different goals:
+- Weight Loss (4-12 week programs)
+- Muscle Building (8-16 week programs)
+- Strength Training (6-12 week programs)
+- Cardio & Endurance (4-8 week programs)
+
+### Can I track cardio?
+Yes. FitTrack tracks running, cycling, swimming, and 30+ other cardio activities. Use GPS for outdoor activities or manually log duration and intensity.
+
+## Nutrition Features
+
+### How does the calorie tracker work?
+Search our database of 200,000+ foods or scan barcodes. Log meals and track macros (protein, carbs, fat). Set daily goals based on your objectives.
+
+### Can I create meal plans?
+Yes. Go to Nutrition → Meal Planner. Drag and drop foods to create daily or weekly meal plans. Export as PDF or share with friends.
+
+### Does FitTrack sync with MyFitnessPal?
+Yes. Go to Settings → Integrations → MyFitnessPal. Log in to sync food data between apps.
+
+## Account & Settings
+
+### How do I upgrade to Pro?
+Go to Settings → Subscription → Upgrade. Choose monthly ($9.99) or yearly ($79.99). Payment is processed through App Store or Google Play.
+
+### How do I cancel my subscription?
+Go to Settings → Subscription → Manage. You can cancel anytime. Access continues until the end of the billing period.
+
+### Can I export my data?
+Yes. Go to Settings → Data → Export. Download your data as CSV or JSON. Available for Pro users only.
+
+### How do I contact support?
+- Email: support@fittrack.example.com
+- In-app chat: Settings → Help → Chat with us
+- Response time: Within 24 hours (Pro users: within 4 hours)
+
+## Privacy & Security
+
+### Is my data secure?
+Yes. We use AES-256 encryption. Data is stored on secure AWS servers. We never sell your personal data.
+
+### Can I delete my account?
+Yes. Go to Settings → Account → Delete Account. This action is permanent and cannot be undone.
+
+### Do you share data with third parties?
+Only with your explicit consent. We share anonymized, aggregated data for research purposes. Never personally identifiable information.

@@ -1,0 +1,48 @@
+# Product Catalog: GreenLife Organic Store
+
+## Welcome to GreenLife Organic
+Your one-stop shop for organic, sustainably sourced products. We deliver fresh, healthy food directly to your door.
+
+## Fresh Produce
+### Vegetables
+- Organic Spinach (200g) — $3.99
+- Heirloom Tomatoes (1kg) — $5.49
+- Fresh Broccoli (500g) — $3.29
+- Baby Carrots (300g) — $2.49
+- Kale Bundle (250g) — $4.19
+
+### Fruits
+- Organic Apples (1kg) — $4.99
+- Bananas (bunch of 6) — $2.99
+- Blueberries (200g) — $6.49
+- Avocados (3 pcs) — $5.99
+- Strawberries (400g) — $5.29
+
+## Dairy & Eggs
+- Free-Range Eggs (12 pcs) — $5.99
+- Organic Whole Milk (1L) — $4.49
+- Greek Yogurt (500g) — $4.99
+- Artisan Cheese (200g) — $7.99
+- Almond Milk (1L) — $3.99
+
+## Pantry Items
+- Quinoa (500g) — $6.99
+- Organic Olive Oil (500ml) — $12.99
+- Raw Honey (350g) — $9.49
+- Chia Seeds (300g) — $7.49
+- Mixed Nuts (400g) — $11.99
+
+## Delivery Information
+- **Free delivery** on orders over $50
+- Same-day delivery available in metro areas
+- Delivery hours: 8:00 AM — 9:00 PM
+- Standard delivery: $5.99
+- Express delivery (within 2 hours): $9.99
+
+## Our Guarantee
+All products are 100% certified organic. If you're not satisfied, we offer a full refund within 7 days of purchase.
+
+## Store Hours
+Monday — Sunday: 8:00 AM — 10:00 PM
+Customer support: support@greenlife.example.com
+Phone: +1 (555) 456-7890
