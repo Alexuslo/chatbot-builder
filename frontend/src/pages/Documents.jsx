@@ -42,9 +42,13 @@ export default function Documents() {
   };
 
   useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
+    document.head.appendChild(style);
     checkUser();
     loadDocuments();
     loadTheme();
+    return () => document.head.removeChild(style);
   }, []);
 
   const checkUser = async () => {
@@ -179,7 +183,7 @@ export default function Documents() {
           {plan === 'pro' && (
             <button 
               onClick={() => setShowThemePicker(true)}
-              style={{ marginRight: '10px', padding: '8px 16px', background: 'none', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer' }}
+              style={{ marginRight: '10px', padding: '8px 16px', background: 'none', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', animation: 'fadeIn 1s ease' }}
             >
               Theme
             </button>
