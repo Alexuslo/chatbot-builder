@@ -25,12 +25,26 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [widgetCode, setWidgetCode] = useState('');
   const [plan, setPlan] = useState('free');
-  const [theme, setTheme] = useState(THEMES_COLORS.blue);
+  const getCachedTheme = () => {
+    try {
+      const cached = JSON.parse(localStorage.getItem('chatbot_theme') || '{}');
+      if (cached.theme && THEMES_COLORS[cached.theme]) {
+        const t = { ...THEMES_COLORS[cached.theme] };
+        if (cached.customBg) t.bg = cached.customBg;
+        if (cached.customHover) t.hover = cached.customHover;
+        if (cached.customText) t.text = cached.customText;
+        return { theme: cached.theme, colors: t, customBg: cached.customBg || '#007bff', customHover: cached.customHover || '#0056b3', customText: cached.customText || '#ffffff' };
+      }
+    } catch {}
+    return null;
+  };
+  const cached = getCachedTheme();
+  const [theme, setTheme] = useState(cached?.colors || THEMES_COLORS.blue);
   const [showThemePicker, setShowThemePicker] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState('blue');
-  const [customBg, setCustomBg] = useState('#007bff');
-  const [customHover, setCustomHover] = useState('#0056b3');
-  const [customText, setCustomText] = useState('#ffffff');
+  const [selectedTheme, setSelectedTheme] = useState(cached?.theme || 'blue');
+  const [customBg, setCustomBg] = useState(cached?.customBg || '#007bff');
+  const [customHover, setCustomHover] = useState(cached?.customHover || '#0056b3');
+  const [customText, setCustomText] = useState(cached?.customText || '#ffffff');
   const [toast, setToast] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const navigate = useNavigate();
@@ -83,6 +97,7 @@ export default function Documents() {
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
     setTheme(t);
+    localStorage.setItem('chatbot_theme', JSON.stringify({ theme: data.theme, customBg: data.customBg, customHover: data.customHover, customText: data.customText }));
   };
 
   const [dragOver, setDragOver] = useState(false);
@@ -138,7 +153,14 @@ export default function Documents() {
     });
     showToast('Theme saved!');
     setShowThemePicker(false);
-    loadTheme();
+    const t = THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue;
+    if (selectedTheme === 'custom') {
+      if (customBg) t.bg = customBg;
+      if (customHover) t.hover = customHover;
+      if (customText) t.text = customText;
+    }
+    setTheme(t);
+    localStorage.setItem('chatbot_theme', JSON.stringify({ theme: selectedTheme, customBg: selectedTheme === 'custom' ? customBg : null, customHover: selectedTheme === 'custom' ? customHover : null, customText: selectedTheme === 'custom' ? customText : null }));
   };
 
   const getWidgetCode = async () => {
