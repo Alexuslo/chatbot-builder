@@ -373,20 +373,39 @@ export default function Documents() {
       )}
 
       {widgetCode && (
-        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-          <h3>Embed Widget Code</h3>
-          <p style={{ color: '#555', marginBottom: '10px', fontSize: '14px' }}>Copy and paste this code into your website's HTML:</p>
+        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', position: 'relative' }}>
+          <button 
+            onClick={() => setWidgetCode('')}
+            style={{ position: 'absolute', top: '10px', left: '10px', background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#999', lineHeight: 1 }}
+          >
+            ✕
+          </button>
+          <h3 style={{ textAlign: 'center', marginTop: 0 }}>Embed Widget Code</h3>
+          <p style={{ color: '#555', marginBottom: '10px', fontSize: '14px', textAlign: 'center' }}>Copy and paste this code into your website's HTML:</p>
           <textarea 
             readOnly 
             value={widgetCode} 
             style={{ width: '100%', height: '150px', fontFamily: 'monospace', fontSize: '12px', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
           />
-          <button 
-            onClick={copyWidgetCode}
-            style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 1s ease' }}
-          >
-            Copy Code
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
+            <button 
+              onClick={copyWidgetCode}
+              style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 1s ease' }}
+            >
+              Copy Code
+            </button>
+            <button 
+              onClick={() => {
+                const widgetIdMatch = widgetCode.match(/widgetId = '([^']+)'/);
+                if (widgetIdMatch) {
+                  window.open(`${import.meta.env.VITE_API_URL}/api/widget/preview/${widgetIdMatch[1]}`, '_blank');
+                }
+              }}
+              style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+            >
+              Preview
+            </button>
+          </div>
         </div>
       )}
       {toast && (

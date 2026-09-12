@@ -240,4 +240,84 @@ router.get('/', auth, async (req, res) => {
   res.json({ widgetCode });
 });
 
+// Widget preview page
+router.get('/preview/:widgetId', async (req, res) => {
+  const { widgetId } = req.params;
+  const frontendUrl = process.env.FRONTEND_URL || 'https://frontend-ecru-six-55.vercel.app';
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; max-width: 500px; }
+    h1 { font-size: 24px; margin-bottom: 12px; }
+    p { color: #666; margin-bottom: 8px; }
+    code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Widget Preview</h1>
+    <p>This is how your chatbot widget will look on a website.</p>
+    <p>Click the button in the bottom-right corner to open it.</p>
+    <p style="margin-top:16px"><code>Widget ID: ${widgetId}</code></p>
+  </div>
+
+  <div id="chatbot-widget"></div>
+  <script>
+  (function() {
+    const widgetId = '${widgetId}';
+    const apiBase = '${process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com'}';
+    const frontendUrl = '${frontendUrl}';
+    
+    let theme = { bg: '#6c757d', hover: '#5a6268', text: '#ffffff' };
+    
+    const container = document.createElement('div');
+    container.id = 'chatbot-widget-container';
+    container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;font-family:system-ui,-apple-system,sans-serif;';
+    
+    const button = document.createElement('button');
+    button.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+    button.style.cssText = 'width:60px;height:60px;border-radius:50%;background:'+theme.bg+';color:'+theme.text+';border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;transition:background-color 1s ease,color 1s ease,transform 0.2s;';
+    button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
+    button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
+    
+    fetch(apiBase + '/api/widget/' + widgetId + '/theme')
+      .then(r => r.json())
+      .then(t => {
+        theme = t;
+        button.style.background = theme.bg;
+        button.style.color = theme.text;
+        button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
+        button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
+      })
+      .catch(() => {});
+    
+    const iframe = document.createElement('iframe');
+    iframe.src = frontendUrl + '/widget/' + widgetId;
+    iframe.style.cssText = 'display:none;position:absolute;bottom:70px;right:0;width:400px;height:520px;border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);';
+    
+    let isOpen = false;
+    button.onclick = () => {
+      isOpen = !isOpen;
+      iframe.style.display = isOpen ? 'block' : 'none';
+      button.innerHTML = isOpen 
+        ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+        : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+    };
+    
+    container.appendChild(iframe);
+    container.appendChild(button);
+    document.body.appendChild(container);
+  })();
+  </script>
+</body>
+</html>`);
+});
+
 module.exports = router;
