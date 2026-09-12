@@ -245,6 +245,34 @@ router.get('/preview/:widgetId', async (req, res) => {
   const { widgetId } = req.params;
   const frontendUrl = process.env.FRONTEND_URL || 'https://frontend-ecru-six-55.vercel.app';
 
+  const { data: sub } = await supabase
+    .from('subscriptions')
+    .select('plan')
+    .eq('public_id', widgetId)
+    .single();
+
+  const isPro = sub?.plan === 'pro';
+
+  const adBanner = isPro ? '' : `
+    const chatAd = document.createElement('div');
+    chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
+    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
+    
+    let chatAdTimer = null;
+    function showChatAd() {
+      chatAd.style.display = 'flex';
+      let sec = 5;
+      const timerEl = chatAd.querySelector('#chatbot-ad-timer');
+      chatAdTimer = setInterval(() => {
+        sec--;
+        if (timerEl) timerEl.textContent = sec;
+        if (sec <= 0) {
+          clearInterval(chatAdTimer);
+          chatAd.style.display = 'none';
+        }
+      }, 1000);
+    }`;
+
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -266,6 +294,7 @@ router.get('/preview/:widgetId', async (req, res) => {
     <p>This is how your chatbot widget will look on a website.</p>
     <p>Click the button in the bottom-right corner to open it.</p>
     <p style="margin-top:16px"><code>Widget ID: ${widgetId}</code></p>
+    <p style="margin-top:8px"><span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;color:white;background:${isPro ? '#28a745' : '#6c757d'}">${isPro ? 'PRO' : 'FREE'}</span></p>
   </div>
 
   <div id="chatbot-widget"></div>
@@ -309,10 +338,13 @@ router.get('/preview/:widgetId', async (req, res) => {
       button.innerHTML = isOpen 
         ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
         : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+      ${!isPro ? 'if (isOpen) showChatAd();' : ''}
     };
     
+    ${adBanner}
     container.appendChild(iframe);
     container.appendChild(button);
+    ${!isPro ? 'container.appendChild(chatAd);' : ''}
     document.body.appendChild(container);
   })();
   </script>
