@@ -57,7 +57,9 @@ export default function Documents() {
   useEffect(() => {
     checkUser();
     loadDocuments();
-    loadTheme();
+    if (!getCachedTheme()) {
+      loadTheme();
+    }
   }, []);
 
   const checkUser = async () => {
