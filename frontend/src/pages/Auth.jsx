@@ -50,7 +50,7 @@ export default function Auth() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
             required
           />
         </div>
@@ -60,14 +60,14 @@ export default function Auth() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
             required
           />
         </div>
         <button 
           type="submit" 
           disabled={loading}
-          style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', boxSizing: 'border-box' }}
         >
           {loading ? 'Loading...' : (isLogin ? 'Login' : 'Register')}
         </button>
