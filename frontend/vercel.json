@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/widget/:path*", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
