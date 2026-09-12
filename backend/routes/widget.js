@@ -47,15 +47,10 @@ router.get('/:widgetId/theme', async (req, res) => {
     return res.status(404).json({ error: 'Widget not found' });
   }
 
-  const themes = {
-    blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
-    green: { bg: '#28a745', hover: '#1e7e34', text: '#ffffff' },
-    dark: { bg: '#343a40', hover: '#23272b', text: '#ffffff' },
-    purple: { bg: '#6f42c1', hover: '#5a32a3', text: '#ffffff' },
-    orange: { bg: '#fd7e14', hover: '#e8590c', text: '#ffffff' }
-  };
+  const themes = THEMES;
 
   let theme = themes[sub.theme] || themes.blue;
+
   if (sub.custom_bg) theme.bg = sub.custom_bg;
   if (sub.custom_hover) theme.hover = sub.custom_hover;
   if (sub.custom_text) theme.text = sub.custom_text;
@@ -108,10 +103,112 @@ router.get('/public-id', auth, async (req, res) => {
   res.json({ publicId: sub.public_id });
 });
 
+// Shared widget code generator
+function generateWidgetCode({ publicId, theme, isPro, frontendUrl, apiBase }) {
+  const adBanner = isPro ? '' : `
+    // Chat ad overlay - covers chat area for 5s on open
+    const chatAd = document.createElement('div');
+    chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
+    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
+    
+    let chatAdTimer = null;
+    function showChatAd() {
+      chatAd.style.display = 'flex';
+      let sec = 5;
+      const timerEl = chatAd.querySelector('#chatbot-ad-timer');
+      chatAdTimer = setInterval(() => {
+        sec--;
+        if (timerEl) timerEl.textContent = sec;
+        if (sec <= 0) {
+          clearInterval(chatAdTimer);
+          chatAd.style.display = 'none';
+        }
+      }, 1000);
+    }`;
+
+  return `<div id="chatbot-widget"></div>
+<script>
+(function() {
+  const widgetId = '${publicId}';
+  const apiBase = '${apiBase}';
+  const frontendUrl = '${frontendUrl}';
+  
+  let theme = ${JSON.stringify(theme)};
+  
+  const container = document.createElement('div');
+  container.id = 'chatbot-widget-container';
+  container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;font-family:system-ui,-apple-system,sans-serif;';
+  
+  const button = document.createElement('button');
+  button.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+  button.style.cssText = 'width:60px;height:60px;border-radius:50%;background:'+theme.bg+';color:'+theme.text+';border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;transition:background-color 1s ease,color 1s ease,transform 0.2s;';
+  button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
+  button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
+  
+  fetch(apiBase + '/api/widget/' + widgetId + '/theme')
+    .then(r => r.json())
+    .then(t => {
+      theme = t;
+      button.style.background = theme.bg;
+      button.style.color = theme.text;
+      button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
+      button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
+    })
+    .catch(() => {});
+  
+  const iframe = document.createElement('iframe');
+  iframe.src = frontendUrl + '/widget/' + widgetId;
+  iframe.style.cssText = 'display:none;position:absolute;bottom:70px;right:0;width:400px;height:520px;border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);';
+  
+  let isOpen = false;
+  button.onclick = () => {
+    isOpen = !isOpen;
+    iframe.style.display = isOpen ? 'block' : 'none';
+    button.innerHTML = isOpen 
+      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+    ${!isPro ? 'if (isOpen) showChatAd();' : ''}
+  };
+  
+  ${adBanner}
+  container.appendChild(iframe);
+  container.appendChild(button);
+  ${!isPro ? 'container.appendChild(chatAd);' : ''}
+  document.body.appendChild(container);
+})();
+</script>`;
+}
+
+// Get subscription data by public_id
+async function getSubByPublicId(publicId) {
+  return supabase
+    .from('subscriptions')
+    .select('user_id, plan, theme, custom_bg, custom_hover, custom_text')
+    .eq('public_id', publicId)
+    .single();
+}
+
+const THEMES = {
+  blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
+  green: { bg: '#28a745', hover: '#1e7e34', text: '#ffffff' },
+  dark: { bg: '#343a40', hover: '#23272b', text: '#ffffff' },
+  purple: { bg: '#6f42c1', hover: '#5a32a3', text: '#ffffff' },
+  orange: { bg: '#fd7e14', hover: '#e8590c', text: '#ffffff' }
+};
+
+function resolveTheme(sub) {
+  let theme = THEMES[sub?.theme] || THEMES.blue;
+  if (sub?.custom_bg) theme = { ...theme, bg: sub.custom_bg };
+  if (sub?.custom_hover) theme = { ...theme, hover: sub.custom_hover };
+  if (sub?.custom_text) theme = { ...theme, text: sub.custom_text };
+  return theme;
+}
+
 // Widget code - uses public_id, not userId
 router.get('/', auth, async (req, res) => {
   const userId = req.user.id;
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
 
   // Get or create public_id
   let { data: sub } = await supabase
@@ -144,134 +241,24 @@ router.get('/', auth, async (req, res) => {
 
   console.log('Widget GET sub:', { plan: sub?.plan, theme: sub?.theme, custom_bg: sub?.custom_bg });
 
-  // Get theme from subscriptions (user-level)
-  const themes = {
-    blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
-    green: { bg: '#28a745', hover: '#1e7e34', text: '#ffffff' },
-    dark: { bg: '#343a40', hover: '#23272b', text: '#ffffff' },
-    purple: { bg: '#6f42c1', hover: '#5a32a3', text: '#ffffff' },
-    orange: { bg: '#fd7e14', hover: '#e8590c', text: '#ffffff' }
-  };
+  const theme = resolveTheme(sub);
 
-  let theme = themes[sub?.theme] || themes.blue;
-
-  if (sub?.custom_bg) theme.bg = sub.custom_bg;
-  if (sub?.custom_hover) theme.hover = sub.custom_hover;
-  if (sub?.custom_text) theme.text = sub.custom_text;
-
-  const adBanner = isPro ? '' : `
-    // Chat ad overlay - covers chat area for 5s on open
-    const chatAd = document.createElement('div');
-    chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
-    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
-    
-    let chatAdTimer = null;
-    function showChatAd() {
-      chatAd.style.display = 'flex';
-      let sec = 5;
-      const timerEl = chatAd.querySelector('#chatbot-ad-timer');
-      chatAdTimer = setInterval(() => {
-        sec--;
-        if (timerEl) timerEl.textContent = sec;
-        if (sec <= 0) {
-          clearInterval(chatAdTimer);
-          chatAd.style.display = 'none';
-        }
-      }, 1000);
-    }`;
-
-  const defaultTheme = theme;
-
-  const widgetCode = `<!-- ChatBot Builder Widget -->
-<div id="chatbot-widget"></div>
-<script>
-(function() {
-  const widgetId = '${publicId}';
-  const apiBase = '${process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com'}';
-  const frontendUrl = '${frontendUrl}';
-  
-  let theme = ${JSON.stringify(theme)};
-  
-  const container = document.createElement('div');
-  container.id = 'chatbot-widget-container';
-  container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;font-family:system-ui,-apple-system,sans-serif;';
-  
-  const button = document.createElement('button');
-  button.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-  button.style.cssText = 'width:60px;height:60px;border-radius:50%;background:'+theme.bg+';color:'+theme.text+';border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;';
-  button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
-  button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
-  
-  // Refresh theme from server (in case it changed)
-  fetch(apiBase + '/api/widget/' + widgetId + '/theme')
-    .then(r => r.json())
-    .then(t => {
-      theme = t;
-      button.style.background = theme.bg;
-      button.style.color = theme.text;
-      button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
-      button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
-    })
-    .catch(() => {});
-  
-  const iframe = document.createElement('iframe');
-  iframe.src = frontendUrl + '/widget/' + widgetId;
-  iframe.style.cssText = 'display:none;position:absolute;bottom:70px;right:0;width:400px;height:520px;border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);';
-  
-  let isOpen = false;
-  button.onclick = () => {
-    isOpen = !isOpen;
-    iframe.style.display = isOpen ? 'block' : 'none';
-    button.innerHTML = isOpen 
-      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
-      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-    ${!isPro ? 'if (isOpen) showChatAd();' : ''}
-  };
-  
-  ${adBanner}
-  
-  container.appendChild(iframe);
-  container.appendChild(button);
-  ${!isPro ? 'container.appendChild(chatAd);' : ''}
-  document.body.appendChild(container);
-})();
-</script>`;
+  const widgetCode = `<!-- ChatBot Builder Widget -->\n${generateWidgetCode({ publicId, theme, isPro, frontendUrl, apiBase })}`;
 
   res.json({ widgetCode });
 });
 
-// Widget preview page
+// Widget preview page - reuses widget code generator
 router.get('/preview/:widgetId', async (req, res) => {
   const { widgetId } = req.params;
   const frontendUrl = process.env.FRONTEND_URL || 'https://frontend-ecru-six-55.vercel.app';
+  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
 
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('plan')
-    .eq('public_id', widgetId)
-    .single();
-
+  const { data: sub } = await getSubByPublicId(widgetId);
   const isPro = sub?.plan === 'pro';
+  const theme = resolveTheme(sub);
 
-  const adBanner = isPro ? '' : `
-    const chatAd = document.createElement('div');
-    chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
-    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
-    
-    let chatAdTimer = null;
-    function showChatAd() {
-      chatAd.style.display = 'flex';
-      let sec = 5;
-      const timerEl = chatAd.querySelector('#chatbot-ad-timer');
-      chatAdTimer = setInterval(() => {
-        sec--;
-        if (timerEl) timerEl.textContent = sec;
-        if (sec <= 0) {
-          clearInterval(chatAdTimer);
-          chatAd.style.display = 'none';
-        }
-      }, 1000);
-    }`;
+  const widgetCode = generateWidgetCode({ publicId: widgetId, theme, isPro, frontendUrl, apiBase });
 
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -296,58 +283,7 @@ router.get('/preview/:widgetId', async (req, res) => {
     <p style="margin-top:16px"><code>Widget ID: ${widgetId}</code></p>
     <p style="margin-top:8px"><span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;color:white;background:${isPro ? '#28a745' : '#6c757d'}">${isPro ? 'PRO' : 'FREE'}</span></p>
   </div>
-
-  <div id="chatbot-widget"></div>
-  <script>
-  (function() {
-    const widgetId = '${widgetId}';
-    const apiBase = '${process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com'}';
-    const frontendUrl = '${frontendUrl}';
-    
-    let theme = { bg: '#6c757d', hover: '#5a6268', text: '#ffffff' };
-    
-    const container = document.createElement('div');
-    container.id = 'chatbot-widget-container';
-    container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;font-family:system-ui,-apple-system,sans-serif;';
-    
-    const button = document.createElement('button');
-    button.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-    button.style.cssText = 'width:60px;height:60px;border-radius:50%;background:'+theme.bg+';color:'+theme.text+';border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;transition:background-color 1s ease,color 1s ease,transform 0.2s;';
-    button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
-    button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
-    
-    fetch(apiBase + '/api/widget/' + widgetId + '/theme')
-      .then(r => r.json())
-      .then(t => {
-        theme = t;
-        button.style.background = theme.bg;
-        button.style.color = theme.text;
-        button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
-        button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
-      })
-      .catch(() => {});
-    
-    const iframe = document.createElement('iframe');
-    iframe.src = frontendUrl + '/widget/' + widgetId;
-    iframe.style.cssText = 'display:none;position:absolute;bottom:70px;right:0;width:400px;height:520px;border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);';
-    
-    let isOpen = false;
-    button.onclick = () => {
-      isOpen = !isOpen;
-      iframe.style.display = isOpen ? 'block' : 'none';
-      button.innerHTML = isOpen 
-        ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
-        : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-      ${!isPro ? 'if (isOpen) showChatAd();' : ''}
-    };
-    
-    ${adBanner}
-    container.appendChild(iframe);
-    container.appendChild(button);
-    ${!isPro ? 'container.appendChild(chatAd);' : ''}
-    document.body.appendChild(container);
-  })();
-  </script>
+  ${widgetCode}
 </body>
 </html>`);
 });
