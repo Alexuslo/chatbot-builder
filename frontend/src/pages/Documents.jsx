@@ -25,26 +25,13 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [widgetCode, setWidgetCode] = useState('');
   const [plan, setPlan] = useState('free');
-  const getCachedTheme = () => {
-    try {
-      const cached = JSON.parse(localStorage.getItem('chatbot_theme') || '{}');
-      if (cached.theme && THEMES_COLORS[cached.theme]) {
-        const t = { ...THEMES_COLORS[cached.theme] };
-        if (cached.customBg) t.bg = cached.customBg;
-        if (cached.customHover) t.hover = cached.customHover;
-        if (cached.customText) t.text = cached.customText;
-        return { theme: cached.theme, colors: t, customBg: cached.customBg || '#007bff', customHover: cached.customHover || '#0056b3', customText: cached.customText || '#ffffff' };
-      }
-    } catch {}
-    return null;
-  };
-  const cached = getCachedTheme();
-  const [theme, setTheme] = useState(cached?.colors || THEMES_COLORS.blue);
+  const [themeLoaded, setThemeLoaded] = useState(false);
+  const [theme, setTheme] = useState({ bg: '#6c757d', hover: '#5a6268', text: '#ffffff' });
   const [showThemePicker, setShowThemePicker] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState(cached?.theme || 'blue');
-  const [customBg, setCustomBg] = useState(cached?.customBg || '#007bff');
-  const [customHover, setCustomHover] = useState(cached?.customHover || '#0056b3');
-  const [customText, setCustomText] = useState(cached?.customText || '#ffffff');
+  const [selectedTheme, setSelectedTheme] = useState('blue');
+  const [customBg, setCustomBg] = useState('#007bff');
+  const [customHover, setCustomHover] = useState('#0056b3');
+  const [customText, setCustomText] = useState('#ffffff');
   const [toast, setToast] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const navigate = useNavigate();
@@ -57,9 +44,7 @@ export default function Documents() {
   useEffect(() => {
     checkUser();
     loadDocuments();
-    if (!getCachedTheme()) {
-      loadTheme();
-    }
+    loadTheme();
   }, []);
 
   const checkUser = async () => {
@@ -99,7 +84,7 @@ export default function Documents() {
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
     setTheme(t);
-    localStorage.setItem('chatbot_theme', JSON.stringify({ theme: data.theme, customBg: data.customBg, customHover: data.customHover, customText: data.customText }));
+    setThemeLoaded(true);
   };
 
   const [dragOver, setDragOver] = useState(false);
@@ -162,7 +147,6 @@ export default function Documents() {
       if (customText) t.text = customText;
     }
     setTheme(t);
-    localStorage.setItem('chatbot_theme', JSON.stringify({ theme: selectedTheme, customBg: selectedTheme === 'custom' ? customBg : null, customHover: selectedTheme === 'custom' ? customHover : null, customText: selectedTheme === 'custom' ? customText : null }));
   };
 
   const getWidgetCode = async () => {
@@ -280,7 +264,7 @@ export default function Documents() {
         <button 
           onClick={uploadDocument} 
           disabled={!file || uploading}
-          style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}
         >
           {uploading ? 'Uploading...' : 'Upload Document'}
         </button>
@@ -291,13 +275,13 @@ export default function Documents() {
           <>
             <button 
               onClick={() => navigate('/chat')}
-              style={{ flex: 4, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px' }}
+              style={{ flex: 4, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease' }}
             >
               Chat with all documents
             </button>
             <button 
               onClick={getWidgetCode}
-              style={{ flex: 1, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px' }}
+              style={{ flex: 1, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease' }}
             >
               Get Widget
             </button>
@@ -395,7 +379,7 @@ export default function Documents() {
           />
           <button 
             onClick={copyWidgetCode}
-            style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+            style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}
           >
             Copy Code
           </button>
