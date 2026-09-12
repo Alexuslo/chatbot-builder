@@ -14,13 +14,17 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState(THEMES.blue);
+  const [theme, setTheme] = useState({ bg: '#6c757d', hover: '#5a6268', text: '#ffffff' });
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
+    document.head.appendChild(style);
     checkUser();
     loadTheme();
+    return () => document.head.removeChild(style);
   }, []);
 
   useEffect(() => {
@@ -96,7 +100,7 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.bg, color: theme.text }}>
+      <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.bg, color: theme.text, transition: 'background-color 1s ease, color 1s ease' }}>
         <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.text }}>
           ← Back to Documents
         </button>
@@ -125,7 +129,8 @@ export default function Chat() {
                 borderRadius: '12px',
                 maxWidth: '70%',
                 backgroundColor: msg.role === 'user' ? theme.bg : '#f0f0f0',
-                color: msg.role === 'user' ? theme.text : 'black'
+                color: msg.role === 'user' ? theme.text : 'black',
+                transition: 'background-color 1s ease, color 1s ease'
               }}
             >
               {msg.content}
@@ -147,7 +152,7 @@ export default function Chat() {
         <button 
           onClick={sendMessage} 
           disabled={loading}
-          style={{ padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          style={{ padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 1s ease, color 1s ease' }}
         >
           {loading ? 'Thinking...' : 'Send'}
         </button>
