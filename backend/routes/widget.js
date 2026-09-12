@@ -187,7 +187,7 @@ router.get('/', auth, async (req, res) => {
 <script>
 (function() {
   const widgetId = '${publicId}';
-  const apiBase = '${process.env.API_URL || 'http://localhost:3001'}';
+  const apiBase = '${process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com'}';
   const frontendUrl = '${frontendUrl}';
   
   let theme = ${JSON.stringify(theme)};
