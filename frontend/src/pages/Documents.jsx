@@ -376,7 +376,7 @@ export default function Documents() {
         <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', position: 'relative' }}>
           <button 
             onClick={() => setWidgetCode('')}
-            style={{ position: 'absolute', top: '10px', left: '10px', background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#999', lineHeight: 1 }}
+            style={{             position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#999', lineHeight: 1 }}
           >
             ✕
           </button>
