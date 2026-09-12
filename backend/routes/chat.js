@@ -79,7 +79,7 @@ router.post('/widget', async (req, res) => {
     const response = await callGroq([
       {
         role: 'system',
-        content: `You are a helpful assistant. Answer questions based ONLY on the following documents. If the answer is not in the documents, say "I don't have information about that in the uploaded documents." Be concise and accurate. Always cite which document the answer comes from.\n\nDocuments:\n${context}`
+        content: `You are a helpful and friendly assistant for a company. You have access to the company's documents. Answer questions based on those documents when relevant. For greetings and general questions, respond naturally and helpfully. Always cite which document the answer comes from when using document information.\n\nDocuments:\n${context}`
       },
       { role: 'user', content: message }
     ]);
@@ -113,7 +113,7 @@ router.post('/', auth, subscriptionCheck('message'), async (req, res) => {
     const response = await callGroq([
       {
         role: 'system',
-        content: `You are a helpful assistant. Answer questions based ONLY on the following documents. If the answer is not in the documents, say "I don't have information about that in the uploaded documents." Be concise and accurate. Always cite which document the answer comes from.\n\nDocuments:\n${context}`
+        content: `You are a helpful and friendly assistant for a company. You have access to the company's documents. Answer questions based on those documents when relevant. For greetings and general questions, respond naturally and helpfully. Always cite which document the answer comes from when using document information.\n\nDocuments:\n${context}`
       },
       { role: 'user', content: message }
     ]);

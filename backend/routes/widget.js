@@ -180,7 +180,7 @@ router.get('/', auth, async (req, res) => {
       }, 1000);
     }`;
 
-  const defaultTheme = { bg: '#007bff', hover: '#0056b3', text: '#ffffff' };
+  const defaultTheme = theme;
 
   const widgetCode = `<!-- ChatBot Builder Widget -->
 <div id="chatbot-widget"></div>
@@ -190,7 +190,7 @@ router.get('/', auth, async (req, res) => {
   const apiBase = '${process.env.API_URL || 'http://localhost:3001'}';
   const frontendUrl = '${frontendUrl}';
   
-  let theme = ${JSON.stringify(defaultTheme)};
+  let theme = ${JSON.stringify(theme)};
   
   const container = document.createElement('div');
   container.id = 'chatbot-widget-container';
@@ -202,7 +202,7 @@ router.get('/', auth, async (req, res) => {
   button.onmouseover = () => { button.style.background = theme.hover; button.style.transform = 'scale(1.1)'; };
   button.onmouseout = () => { button.style.background = theme.bg; button.style.transform = 'scale(1)'; };
   
-  // Fetch theme from server
+  // Refresh theme from server (in case it changed)
   fetch(apiBase + '/api/widget/' + widgetId + '/theme')
     .then(r => r.json())
     .then(t => {

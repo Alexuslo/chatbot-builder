@@ -66,8 +66,38 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         user_id: session.metadata.user_id,
         plan: 'pro',
         stripe_customer_id: session.customer,
-        stripe_subscription_id: session.subscription
+        stripe_subscription_id: session.subscription,
+        updated_at: new Date().toISOString()
       });
+    }
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('user_id')
+        .eq('stripe_subscription_id', subscription.id)
+        .single();
+      if (sub) {
+        await supabase.from('subscriptions').update({
+          plan: 'free',
+          updated_at: new Date().toISOString()
+        }).eq('user_id', sub.user_id);
+      }
+    }
+    if (event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object;
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('user_id')
+        .eq('stripe_subscription_id', subscription.id)
+        .single();
+      if (sub) {
+        const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+        await supabase.from('subscriptions').update({
+          plan: isActive ? 'pro' : 'free',
+          updated_at: new Date().toISOString()
+        }).eq('user_id', sub.user_id);
+      }
     }
     res.json({ received: true });
   } catch (error) {
