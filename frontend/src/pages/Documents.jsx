@@ -264,7 +264,7 @@ export default function Documents() {
         <button 
           onClick={uploadDocument} 
           disabled={!file || uploading}
-          style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}
+          style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 1s ease' }}
         >
           {uploading ? 'Uploading...' : 'Upload Document'}
         </button>
@@ -275,13 +275,13 @@ export default function Documents() {
           <>
             <button 
               onClick={() => navigate('/chat')}
-              style={{ flex: 4, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease' }}
+              style={{ flex: 4, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 1s ease' }}
             >
               Chat with all documents
             </button>
             <button 
               onClick={getWidgetCode}
-              style={{ flex: 1, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease' }}
+              style={{ flex: 1, padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 1s ease' }}
             >
               Get Widget
             </button>
@@ -379,7 +379,7 @@ export default function Documents() {
           />
           <button 
             onClick={copyWidgetCode}
-            style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}
+            style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 1s ease' }}
           >
             Copy Code
           </button>
