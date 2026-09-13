@@ -37,10 +37,11 @@
 
 ## Phase 3 — Frontend: инфраструктура
 
-- [ ] **`.env` в `.gitignore`** — добавить, создать `.env.example`
-- [ ] **Удалить `App.css`** — 184 строки мёртвого Vite-шаблона
-- [ ] **CSS-модули или классы** — вынести inline styles в CSS файлы
-- [ ] **Delete `themeLoaded` state** — мёртвый код в Documents.jsx
+- [x] **`.env` в `.gitignore`** — добавить, создать `.env.example`
+- [x] **Удалить `App.css`** — 184 строки мёртвого Vite-шаблона
+- [ ] **CSS-модули или классы** — вынести inline styles в CSS файлы (пропущено — требует полного переделывания стилей)
+- [x] **Delete `themeLoaded` state** — мёртвый код в Documents.jsx
+- [x] **HTML meta tags** — title, description, Open Graph
 
 ## Phase 4 — Frontend: компоненты
 

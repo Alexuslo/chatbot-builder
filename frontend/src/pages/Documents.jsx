@@ -25,7 +25,6 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [widgetCode, setWidgetCode] = useState('');
   const [plan, setPlan] = useState('free');
-  const [themeLoaded, setThemeLoaded] = useState(false);
   const [theme, setTheme] = useState({ bg: '#6c757d', hover: '#5a6268', text: '#ffffff' });
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('blue');
@@ -88,7 +87,6 @@ export default function Documents() {
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
     setTheme(t);
-    setThemeLoaded(true);
   };
 
   const [dragOver, setDragOver] = useState(false);
