@@ -1,21 +1,9 @@
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const auth = require('../middleware/auth');
+const config = require('../config');
+const supabase = require('../config/supabase');
 
 const router = express.Router();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-  req.user = user;
-  next();
-};
 
 // Get current theme
 router.get('/theme', auth, async (req, res) => {
@@ -207,8 +195,8 @@ function resolveTheme(sub) {
 // Widget code - uses public_id, not userId
 router.get('/', auth, async (req, res) => {
   const userId = req.user.id;
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
+  const frontendUrl = config.FRONTEND_URL;
+  const apiBase = config.API_URL;
 
   // Get or create public_id
   let { data: sub } = await supabase
@@ -251,8 +239,8 @@ router.get('/', auth, async (req, res) => {
 // Widget preview page - reuses widget code generator
 router.get('/preview/:widgetId', async (req, res) => {
   const { widgetId } = req.params;
-  const frontendUrl = process.env.FRONTEND_URL || 'https://frontend-ecru-six-55.vercel.app';
-  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
+  const frontendUrl = config.FRONTEND_URL;
+  const apiBase = config.API_URL;
 
   const { data: sub } = await getSubByPublicId(widgetId);
   const isPro = sub?.plan === 'pro';

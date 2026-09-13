@@ -1,6 +1,18 @@
+require('dotenv').config();
+
+const config = require('./config');
+
+// Validate required env vars
+const required = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'GROQ_API_KEY'];
+for (const key of required) {
+  if (!config[key]) {
+    console.error(`Missing required env: ${key}`);
+    process.exit(1);
+  }
+}
+
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 
 const documentsRouter = require('./routes/documents');
 const chatRouter = require('./routes/chat');
@@ -17,11 +29,38 @@ app.use('/api/chat', chatRouter);
 app.use('/api/billing', billingRouter);
 app.use('/api/widget', widgetRouter);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/health', async (req, res) => {
+  const checks = { status: 'ok' };
+  try {
+    const supabase = require('./config/supabase');
+    await supabase.from('subscriptions').select('id').limit(1);
+    checks.database = 'ok';
+  } catch {
+    checks.database = 'error';
+    checks.status = 'degraded';
+  }
+  res.json(checks);
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
+
+const server = app.listen(config.PORT, () => {
+  console.log(`Server running on port ${config.PORT}`);
+});
+
+// Graceful shutdown
+function shutdown(signal) {
+  console.log(`${signal} received. Shutting down...`);
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

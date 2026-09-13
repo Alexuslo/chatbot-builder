@@ -1,9 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const config = require('../config');
+const supabase = require('../config/supabase');
 
 const PLAN_LIMITS = {
   free: { documents: 1, messages: 100, widget: false },
@@ -22,7 +18,7 @@ async function getSubscription(userId) {
       data.stripe_subscription_id !== 'mock_subscription') {
     try {
       const Stripe = require('stripe');
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
       const subscription = await stripe.subscriptions.retrieve(data.stripe_subscription_id);
       if (subscription.status !== 'active' && subscription.status !== 'trialing') {
         // Downgrade to free

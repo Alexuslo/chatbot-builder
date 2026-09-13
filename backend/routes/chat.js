@@ -1,30 +1,23 @@
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const rateLimit = require('express-rate-limit');
 const { subscriptionCheck } = require('../middleware/subscription');
+const auth = require('../middleware/auth');
+const config = require('../config');
+const supabase = require('../config/supabase');
 
 const router = express.Router();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-
-  req.user = user;
-  next();
-};
+const widgetLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many requests, please try again later' }
+});
 
 async function callGroq(messages) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Authorization': `Bearer ${config.GROQ_API_KEY}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -45,7 +38,7 @@ async function callGroq(messages) {
 }
 
 // Public chat for widget (no auth required, searches all user's documents)
-router.post('/widget', async (req, res) => {
+router.post('/widget', widgetLimiter, async (req, res) => {
   try {
     const { message, widgetId } = req.body;
 

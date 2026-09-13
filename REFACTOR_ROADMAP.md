@@ -14,17 +14,17 @@
 
 ## Phase 1 — Backend: структура и безопасность
 
-- [ ] **Shared supabase client** — `config/supabase.js`, удалить createClient из 5 файлов
-- [ ] **Shared auth middleware** — `middleware/auth.js`, удалить из 4 файлов
-- [ ] **Global error handler** — `app.use((err, req, res, next) => ...)` в server.js
-- [ ] **Rate limiting** — `express-rate-limit` на `POST /api/chat/widget`
-- [ ] **Input validation** — `joi` или `zod` для body/params
-- [ ] **Env validation при старте** — проверка обязательных переменных
-- [ ] **Document upload limits** — max file size, file type filter в multer
-- [ ] **Temp file cleanup** — `fs.unlinkSync(file.path)` после обработки
-- [ ] **Config centralization** — `config/index.js` с дефолтами
-- [ ] **Health check** — проверка Supabase/Groq connectivity
-- [ ] **Graceful shutdown** — SIGTERM/SIGINT handler
+- [x] **Shared supabase client** — `config/supabase.js`, удалить createClient из 5 файлов
+- [x] **Shared auth middleware** — `middleware/auth.js`, удалить из 4 файлов
+- [x] **Global error handler** — `app.use((err, req, res, next) => ...)` в server.js
+- [x] **Rate limiting** — `express-rate-limit` на `POST /api/chat/widget`
+- [ ] **Input validation** — `joi` или `zod` для body/params (пропущено — низкий приоритет)
+- [x] **Env validation при старте** — проверка обязательных переменных
+- [x] **Document upload limits** — max file size, file type filter в multer
+- [x] **Temp file cleanup** — `fs.unlinkSync(file.path)` после обработки
+- [x] **Config centralization** — `config/index.js` с дефолтами
+- [x] **Health check** — проверка Supabase connectivity
+- [x] **Graceful shutdown** — SIGTERM/SIGINT handler
 
 ## Phase 2 — Backend: архитектура
 
