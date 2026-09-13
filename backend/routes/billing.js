@@ -3,6 +3,7 @@ const Stripe = require('stripe');
 const auth = require('../middleware/auth');
 const config = require('../config');
 const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.post('/create-checkout', auth, async (req, res) => {
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'CHECKOUT_ERROR', 'Failed to create checkout session');
   }
 });
 

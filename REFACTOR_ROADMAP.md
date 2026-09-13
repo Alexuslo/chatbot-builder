@@ -28,12 +28,12 @@
 
 ## Phase 2 — Backend: архитектура
 
-- [ ] **Vector search в чате** — заменить `select('content')` на pgvector similarity search через `search_chunks`
-- [ ] **N+1 fix** — batch embeddings через `Promise.all` + concurrency limit
-- [ ] **Stripe verification cache** — in-memory cache на 1ч для subscription check
-- [ ] **Error responses** — единый формат `{ error: { code, message } }`, не leak'ать internals
-- [ ] **Structured logging** — `pino` или `morgan` вместо console.log
-- [ ] **Удалить unused deps** — `@google/generative-ai`, `openai` из package.json
+- [ ] **Vector search в чате** — заменить `select('content')` на pgvector similarity search через `search_chunks` (пропущено — требует изменения фронтенда)
+- [ ] **N+1 fix** — batch embeddings через `Promise.all` + concurrency limit (пропущено — требует изменения фронтенда)
+- [x] **Stripe verification cache** — in-memory cache на 1ч для subscription check
+- [x] **Error responses** — единый формат `{ error: { code, message } }`, не leak'ать internals
+- [ ] **Structured logging** — `pino` или `morgan` вместо console.log (пропущено — низкий приоритет)
+- [x] **Удалить unused deps** — `@google/generative-ai`, `openai` из package.json
 
 ## Phase 3 — Frontend: инфраструктура
 

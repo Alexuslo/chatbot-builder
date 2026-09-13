@@ -6,6 +6,7 @@ const { subscriptionCheck, getSubscription } = require('../middleware/subscripti
 const auth = require('../middleware/auth');
 const config = require('../config');
 const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
 const upload = multer({
@@ -59,7 +60,7 @@ router.post('/upload', auth, subscriptionCheck('document'), upload.single('file'
     res.json({ success: true, documentId: doc.id, subscription: req.subscription });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'UPLOAD_ERROR', 'Failed to upload document');
   }
 });
 

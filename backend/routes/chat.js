@@ -4,6 +4,7 @@ const { subscriptionCheck } = require('../middleware/subscription');
 const auth = require('../middleware/auth');
 const config = require('../config');
 const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
 
@@ -43,7 +44,7 @@ router.post('/widget', widgetLimiter, async (req, res) => {
     const { message, widgetId } = req.body;
 
     if (!widgetId || !message) {
-      return res.status(400).json({ error: 'message and widgetId required' });
+      return errorResponse(res, 400, 'MISSING_FIELDS', 'message and widgetId required');
     }
 
     // Resolve public_id → userId
@@ -54,7 +55,7 @@ router.post('/widget', widgetLimiter, async (req, res) => {
       .single();
 
     if (!sub) {
-      return res.json({ response: 'Invalid widget ID.' });
+      return errorResponse(res, 404, 'WIDGET_NOT_FOUND', 'Invalid widget ID');
     }
 
     // Get all user's documents
@@ -64,7 +65,7 @@ router.post('/widget', widgetLimiter, async (req, res) => {
       .eq('user_id', sub.user_id);
 
     if (!docs || docs.length === 0) {
-      return res.json({ response: 'No documents found.' });
+      return errorResponse(res, 404, 'NO_DOCUMENTS', 'No documents found for this widget');
     }
 
     const context = docs.map(d => `[${d.name}]\n${d.content.substring(0, 2000)}`).join('\n\n');
@@ -80,7 +81,7 @@ router.post('/widget', widgetLimiter, async (req, res) => {
     res.json({ response });
   } catch (error) {
     console.error('Widget chat error:', error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'CHAT_ERROR', 'Failed to process message');
   }
 });
 
@@ -114,7 +115,7 @@ router.post('/', auth, subscriptionCheck('message'), async (req, res) => {
     res.json({ response, subscription: req.subscription });
   } catch (error) {
     console.error('Chat error:', error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'CHAT_ERROR', 'Failed to process message');
   }
 });
 

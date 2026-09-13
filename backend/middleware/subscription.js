@@ -6,6 +6,9 @@ const PLAN_LIMITS = {
   pro: { documents: Infinity, messages: Infinity, widget: true }
 };
 
+const stripeCache = new Map();
+const CACHE_TTL = 60 * 60 * 1000;
+
 async function getSubscription(userId) {
   const { data } = await supabase
     .from('subscriptions')
@@ -16,12 +19,23 @@ async function getSubscription(userId) {
   // If has Stripe subscription, verify it's still active
   if (data?.plan === 'pro' && data?.stripe_subscription_id && 
       data.stripe_subscription_id !== 'mock_subscription') {
+    
+    const cached = stripeCache.get(data.stripe_subscription_id);
+    if (cached && Date.now() - cached.time < CACHE_TTL) {
+      return cached.plan;
+    }
+
     try {
       const Stripe = require('stripe');
       const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
       const subscription = await stripe.subscriptions.retrieve(data.stripe_subscription_id);
-      if (subscription.status !== 'active' && subscription.status !== 'trialing') {
-        // Downgrade to free
+      
+      const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+      const plan = isActive ? 'pro' : 'free';
+      
+      stripeCache.set(data.stripe_subscription_id, { plan, time: Date.now() });
+      
+      if (!isActive) {
         await supabase.from('subscriptions').update({
           plan: 'free',
           updated_at: new Date().toISOString()

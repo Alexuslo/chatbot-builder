@@ -2,6 +2,7 @@ const express = require('express');
 const auth = require('../middleware/auth');
 const config = require('../config');
 const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
 
@@ -72,7 +73,7 @@ router.post('/theme', auth, async (req, res) => {
 
   console.log('Theme save result:', { data, error, count, userId: req.user.id });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return errorResponse(res, 500, 'THEME_SAVE_ERROR', 'Failed to save theme');
   res.json({ success: true });
 });
 
