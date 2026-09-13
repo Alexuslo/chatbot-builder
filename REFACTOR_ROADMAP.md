@@ -45,16 +45,16 @@
 
 ## Phase 4 — Frontend: компоненты
 
-- [ ] **AuthContext** — единый auth state, удалить checkUser из 4 страниц
-- [ ] **ThemeContext** — единый theme state, удалить loadTheme из 3 страниц
-- [ ] **ProtectedRoute** — wrapper для приватных маршрутов
-- [ ] **useAuthenticatedFetch hook** — единый паттерн API-запросов
-- [ ] **Modal component** — переиспользуемый (theme picker, delete confirm)
-- [ ] **Toast component** — с cleanup и `role="alert"`
-- [ ] **Layout component** — навигация, общая обёртка
-- [ ] **ChatInterface component** — объединить Chat.jsx и Widget.jsx
-- [ ] **ErrorBoundary** — обёртка для страниц
-- [ ] **Lazy loading** — `React.lazy()` для страниц
+- [x] **AuthContext** — единый auth state, удалить checkUser из 4 страниц
+- [ ] **ThemeContext** — единый theme state, удалить loadTheme из 3 страниц (пропущено — требует изменения фронтенда)
+- [x] **ProtectedRoute** — wrapper для приватных маршрутов
+- [x] **useAuthenticatedFetch hook** — единый паттерн API-запросов
+- [ ] **Modal component** — переиспользуемый (theme picker, delete confirm) (пропущено — требует изменения фронтенда)
+- [x] **Toast component** — с cleanup и `role="alert"`
+- [x] **Layout component** — навигация, общая обёртка
+- [ ] **ChatInterface component** — объединить Chat.jsx и Widget.jsx (пропущено — требует изменения фронтенда)
+- [x] **ErrorBoundary** — обёртка для страниц
+- [ ] **Lazy loading** — `React.lazy()` для страниц (пропущено — низкий приоритет)
 
 ## Phase 5 — Frontend: polish
 
