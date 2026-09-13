@@ -60,6 +60,7 @@ async function checkLimit(userId, type) {
       .from('chat_messages')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'user')
+      .eq('user_id', userId)
       .gte('created_at', startOfMonth.toISOString());
     return { allowed: count < limits.messages, remaining: limits.messages - count, plan };
   }

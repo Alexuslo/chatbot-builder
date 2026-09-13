@@ -46,7 +46,7 @@ export default function Chat() {
       headers: { 'Authorization': `Bearer ${session.access_token}` }
     });
     const data = await response.json();
-    const t = THEMES[data.theme] || THEMES.blue;
+    const t = { ...(THEMES[data.theme] || THEMES.blue) };
     if (data.customBg) t.bg = data.customBg;
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
@@ -144,7 +144,7 @@ export default function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Ask about your documents..."
           disabled={loading}
           style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '8px', border: '1px solid #ddd' }}

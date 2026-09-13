@@ -83,7 +83,7 @@ export default function Documents() {
     if (data.customHover) setCustomHover(data.customHover);
     if (data.customText) setCustomText(data.customText);
     
-    const t = THEMES_COLORS[data.theme] || THEMES_COLORS.blue;
+    const t = { ...(THEMES_COLORS[data.theme] || THEMES_COLORS.blue) };
     if (data.customBg) t.bg = data.customBg;
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
@@ -144,7 +144,7 @@ export default function Documents() {
     });
     showToast('Theme saved!');
     setShowThemePicker(false);
-    const t = THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue;
+    const t = { ...(THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue) };
     if (selectedTheme === 'custom') {
       if (customBg) t.bg = customBg;
       if (customHover) t.hover = customHover;

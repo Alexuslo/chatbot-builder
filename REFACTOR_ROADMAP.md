@@ -7,10 +7,10 @@
 
 ## Phase 0 — Багфиксы (критичные, до рефакторинга)
 
-- [ ] **Message count bug** — `middleware/subscription.js:59` — добавить `.eq('user_id', userId)` в count-запрос
-- [ ] **Document delete ownership** — `routes/documents.js:99` — добавить `.eq('user_id', req.user.id)`
-- [ ] **Theme mutation** — `Chat.jsx:49`, `Documents.jsx:86` — `{ ...THEMES.blue }` вместо `THEMES.blue`
-- [ ] **`onKeyPress` deprecated** — заменить на `onKeyDown` в Chat.jsx и Widget.jsx
+- [x] **Message count bug** — `middleware/subscription.js:59` — добавить `.eq('user_id', userId)` в count-запрос
+- [x] **Document delete ownership** — `routes/documents.js:99` — добавить `.eq('user_id', req.user.id)`
+- [x] **Theme mutation** — `Chat.jsx:49`, `Documents.jsx:86` — `{ ...THEMES.blue }` вместо `THEMES.blue`
+- [x] **`onKeyPress` deprecated** — заменить на `onKeyDown` в Chat.jsx и Widget.jsx
 
 ## Phase 1 — Backend: структура и безопасность
 

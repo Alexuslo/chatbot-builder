@@ -95,7 +95,7 @@ router.get('/', auth, async (req, res) => {
 // Delete document
 router.delete('/:id', auth, async (req, res) => {
   await supabase.from('chunks').delete().eq('document_id', req.params.id);
-  await supabase.from('documents').delete().eq('id', req.params.id);
+  await supabase.from('documents').delete().eq('id', req.params.id).eq('user_id', req.user.id);
   res.json({ success: true });
 });
 
