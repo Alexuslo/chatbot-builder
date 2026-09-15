@@ -35,25 +35,23 @@ export default function Landing() {
         </Link>
       </section>
 
-      <section style={{ padding: '30px 20px', backgroundColor: '#f8f9fa', borderRadius: '12px', margin: '0 20px' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>📄</div>
-            <h3>Upload Documents</h3>
-            <p style={{ color: '#555' }}>Support for PDF, TXT, MD files. Auto-indexed for AI search.</p>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🤖</div>
-            <h3>AI Chatbot</h3>
-            <p style={{ color: '#555' }}>ChatGPT-like interface that knows your documents.</p>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔗</div>
-            <h3>Embed Anywhere</h3>
-            <p style={{ color: '#555' }}>Get a widget to embed on your website in one line of code.</p>
-          </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', margin: '0 20px' }}>
+        <div style={{ textAlign: 'center', padding: '24px 16px', backgroundColor: '#f8f9fa', borderRadius: '12px' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📄</div>
+          <h3>Upload Documents</h3>
+          <p style={{ color: '#555', margin: 0 }}>Support for PDF, TXT, MD files. Auto-indexed for AI search.</p>
         </div>
-      </section>
+        <div style={{ textAlign: 'center', padding: '24px 16px', backgroundColor: '#f8f9fa', borderRadius: '12px' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>🤖</div>
+          <h3>AI Chatbot</h3>
+          <p style={{ color: '#555', margin: 0 }}>ChatGPT-like interface that knows your documents.</p>
+        </div>
+        <div style={{ textAlign: 'center', padding: '24px 16px', backgroundColor: '#f8f9fa', borderRadius: '12px' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔗</div>
+          <h3>Embed Anywhere</h3>
+          <p style={{ color: '#555', margin: 0 }}>Get a widget to embed on your website in one line of code.</p>
+        </div>
+      </div>
 
       <section style={{ textAlign: 'center', padding: '30px 20px' }}>
         <h2>Ready to build your chatbot?</h2>
