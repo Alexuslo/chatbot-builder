@@ -12,7 +12,7 @@ export default function Landing() {
         </div>
       </nav>
 
-      <section style={{ textAlign: 'center', padding: '40px 20px', flex: 1 }}>
+      <section style={{ textAlign: 'center', padding: '1px 20px 40px', flex: 1 }}>
         <h1 style={{ fontSize: '36px', marginBottom: '12px' }}>
           Turn Your Docs into AI Chatbot
         </h1>
