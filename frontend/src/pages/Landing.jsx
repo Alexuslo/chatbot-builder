@@ -53,9 +53,20 @@ export default function Landing() {
         </div>
       </div>
 
-      <section style={{ textAlign: 'center', padding: '30px 20px' }}>
+      <section style={{ padding: '30px 20px', maxWidth: '500px', margin: '0 auto' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>How It Works</h2>
+        <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <li style={{ fontSize: '18px', marginBottom: '8px' }}>1. Sign up in seconds</li>
+          <li style={{ fontSize: '18px', marginBottom: '8px' }}>2. Drop your docs — PDF, TXT, MD</li>
+          <li style={{ fontSize: '18px', marginBottom: '8px' }}>3. Add more, remove what you don't need</li>
+          <li style={{ fontSize: '18px', marginBottom: '12px' }}>4. Chat with your docs — unleash the power of AI</li>
+        </ol>
+        <p style={{ color: '#888', fontSize: '13px', textAlign: 'center', margin: 0 }}>Pro plan unlocks advanced features for power users</p>
+      </section>
+
+      <section style={{ textAlign: 'center', padding: '8px 20px' }}>
         <h2>Ready to build your chatbot?</h2>
-        <p style={{ color: '#aaa', marginBottom: '30px' }}>Start for free. No credit card required.</p>
+        <p style={{ color: '#aaa', marginBottom: '18px' }}>Start for free. No credit card required.</p>
         <Link 
           to="/register"
           style={{ 
@@ -71,7 +82,7 @@ export default function Landing() {
         </Link>
       </section>
 
-      <footer style={{ padding: '20px 20px', backgroundColor: '#f8f9fa', textAlign: 'center', color: '#888', borderRadius: '12px', margin: '0 20px' }}>
+      <footer style={{ padding: '14px 20px', backgroundColor: '#f8f9fa', textAlign: 'center', color: '#888', borderRadius: '12px', margin: '16px 20px' }}>
         <p>© 2026 ChatBot Builder. Built with AI.</p>
       </footer>
     </div>
