@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
-import { useToast, Toast } from '../components/Toast';
+import { useToast } from '../components/Toast';
+import Toast from '../components/Toast';
 
 const THEMES = [
   { id: 'blue', name: 'Blue', bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
