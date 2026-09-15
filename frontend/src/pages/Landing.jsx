@@ -6,9 +6,8 @@ export default function Landing() {
       <nav style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '24px', fontWeight: 'bold' }}>ChatBot Builder</span>
         <div>
-          <Link to="/login" style={{ marginRight: '20px', textDecoration: 'none', color: '#ccc' }}>Login</Link>
-          <Link to="/register" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>
-            Get Started
+          <Link to="/login" style={{             padding: '10px 30px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '6px' }}>
+            Login
           </Link>
         </div>
       </nav>
