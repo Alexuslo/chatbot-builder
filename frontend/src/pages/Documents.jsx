@@ -143,7 +143,7 @@ export default function Documents() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
-      {uploading && <FullScreenSpinner text="Uploading document..." />}
+      {uploading && <FullScreenSpinner />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1>My Documents</h1>

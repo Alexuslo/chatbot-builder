@@ -82,7 +82,7 @@ export default function Widget() {
       padding: 0,
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {loading && <FullScreenSpinner text="Thinking..." />}
+      {loading && <FullScreenSpinner />}
       <div style={{ 
         padding: '12px 16px', 
         backgroundColor: theme.bg, 

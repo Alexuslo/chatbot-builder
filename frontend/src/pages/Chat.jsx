@@ -90,7 +90,7 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {loading && <FullScreenSpinner text="Thinking..." />}
+      {loading && <FullScreenSpinner />}
       <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.bg, color: theme.text, transition: 'background-color 1s ease, color 1s ease' }}>
         <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.text }}>
           ← Back to Documents
