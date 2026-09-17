@@ -98,7 +98,7 @@ function generateWidgetCode({ publicId, theme, isPro, frontendUrl, apiBase }) {
     // Chat ad overlay - covers chat area for 5s on open
     const chatAd = document.createElement('div');
     chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
-    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
+    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
     
     let chatAdTimer = null;
     function showChatAd() {

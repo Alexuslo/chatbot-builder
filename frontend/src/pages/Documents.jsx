@@ -207,7 +207,7 @@ export default function Documents() {
             {plan === 'pro' ? 'PRO' : 'FREE'}
           </span>
         </div>
-        <p style={{ marginBottom: '15px', color: '#555' }}>
+        <p style={{ marginBottom: '15px', color: '#888' }}>
           {file ? file.name : 'Drag & drop a file here, or click to browse'}
         </p>
         <input
@@ -384,10 +384,8 @@ export default function Documents() {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button 
                 onClick={async () => {
-                  const { data: { session } } = await supabase.auth.getSession();
-                  await fetch(`${import.meta.env.VITE_API_URL}/api/documents/${confirmDelete}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                  await authFetch(`${import.meta.env.VITE_API_URL}/api/documents/${confirmDelete}`, {
+                    method: 'DELETE'
                   });
                   setConfirmDelete(null);
                   loadDocuments();

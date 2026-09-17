@@ -7,13 +7,18 @@ export function useAuthenticatedFetch() {
   const authFetch = async (url, options = {}) => {
     if (!session) throw new Error('Not authenticated');
 
+    const headers = {
+      'Authorization': `Bearer ${session.access_token}`,
+      ...options.headers,
+    };
+
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-        ...options.headers,
-      },
+      headers,
     });
 
     return response;
