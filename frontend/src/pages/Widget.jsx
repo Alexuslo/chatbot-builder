@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import Spinner from '../components/Spinner';
+import Spinner, { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -82,6 +82,7 @@ export default function Widget() {
       padding: 0,
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {loading && <FullScreenSpinner text="Thinking..." />}
       <div style={{ 
         padding: '12px 16px', 
         backgroundColor: theme.bg, 

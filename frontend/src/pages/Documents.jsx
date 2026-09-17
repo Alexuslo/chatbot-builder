@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
 import { useToast } from '../components/Toast';
-import Spinner from '../components/Spinner';
+import Spinner, { FullScreenSpinner } from '../components/Spinner';
 import Toast from '../components/Toast';
 
 const THEMES = [
@@ -143,6 +143,7 @@ export default function Documents() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
+      {uploading && <FullScreenSpinner text="Uploading document..." />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1>My Documents</h1>

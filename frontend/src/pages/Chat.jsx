@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
-import Spinner from '../components/Spinner';
+import Spinner, { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -90,6 +90,7 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {loading && <FullScreenSpinner text="Thinking..." />}
       <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.bg, color: theme.text, transition: 'background-color 1s ease, color 1s ease' }}>
         <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.text }}>
           ← Back to Documents
