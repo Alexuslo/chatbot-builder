@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import Spinner from '../components/Spinner';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -69,7 +70,7 @@ export default function Auth() {
           disabled={loading}
           style={{ width: '100%', padding: '12px', fontSize: '16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', boxSizing: 'border-box' }}
         >
-          {loading ? 'Loading...' : (isLogin ? 'Login' : 'Register')}
+          {loading ? <Spinner /> : (isLogin ? 'Login' : 'Register')}
         </button>
       </form>
       

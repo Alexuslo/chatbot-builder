@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
 import { useToast } from '../components/Toast';
+import Spinner from '../components/Spinner';
 import Toast from '../components/Toast';
 
 const THEMES = [
@@ -237,7 +238,7 @@ export default function Documents() {
           disabled={!file || uploading}
           style={{ padding: '10px 20px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'background-color 1s ease' }}
         >
-          {uploading ? 'Uploading...' : 'Upload Document'}
+          {uploading ? <Spinner /> : 'Upload Document'}
         </button>
       </div>
 
