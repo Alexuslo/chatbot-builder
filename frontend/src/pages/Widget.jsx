@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import Spinner, { FullScreenSpinner } from '../components/Spinner';
+import { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -163,7 +163,7 @@ export default function Widget() {
             opacity: loading || !input.trim() ? 0.6 : 1
           }}
         >
-          {loading ? <Spinner size={16} /> : 'Send'}
+          {loading ? '...' : 'Send'}
         </button>
       </div>
     </div>

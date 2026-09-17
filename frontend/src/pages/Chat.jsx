@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
-import Spinner, { FullScreenSpinner } from '../components/Spinner';
+import { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -145,7 +145,7 @@ export default function Chat() {
           disabled={loading}
           style={{ padding: '12px 24px', backgroundColor: theme.bg, color: theme.text, border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 1s ease, color 1s ease' }}
         >
-          {loading ? <Spinner /> : 'Send'}
+          {loading ? 'Thinking...' : 'Send'}
         </button>
       </div>
     </div>

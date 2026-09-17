@@ -14,7 +14,7 @@ export function Spinner({ size = 20, color = 'white' }) {
   );
 }
 
-export function FullScreenSpinner({ text = 'Loading...' }) {
+export function FullScreenSpinner({ text = 'Wait please...' }) {
   return (
     <div style={{
       position: 'fixed',
