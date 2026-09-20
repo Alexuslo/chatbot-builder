@@ -1,5 +1,6 @@
 const express = require('express');
 const Stripe = require('stripe');
+const { stripeCache } = require('../middleware/subscription');
 const auth = require('../middleware/auth');
 const config = require('../config');
 const supabase = require('../config/supabase');
@@ -120,6 +121,7 @@ router.post('/verify-checkout', auth, async (req, res) => {
           stripe_subscription_id: session.subscription,
           updated_at: new Date().toISOString()
         });
+        stripeCache.set(session.subscription, { plan: 'pro', time: Date.now() });
         return res.json({ success: true });
       }
     }

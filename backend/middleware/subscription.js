@@ -101,4 +101,4 @@ function subscriptionCheck(type) {
   };
 }
 
-module.exports = { getSubscription, checkLimit, subscriptionCheck, PLAN_LIMITS };
+module.exports = { getSubscription, checkLimit, subscriptionCheck, PLAN_LIMITS, stripeCache };
