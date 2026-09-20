@@ -29,7 +29,7 @@ router.post('/create-checkout', auth, async (req, res) => {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${config.API_URL}/api/billing/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${config.FRONTEND_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${config.FRONTEND_URL}/pricing`,
       metadata: { user_id: req.user.id }
     });
@@ -94,33 +94,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   }
 });
 
-router.get('/checkout-success', async (req, res) => {
-  try {
-    const { session_id } = req.query;
-    if (!session_id) return res.redirect(`${config.FRONTEND_URL}/dashboard`);
-
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-    
-    if (session.status === 'complete' && session.payment_status === 'paid') {
-      const userId = session.metadata?.user_id;
-      if (userId) {
-        await supabase.from('subscriptions').upsert({
-          user_id: userId,
-          plan: 'pro',
-          stripe_customer_id: session.customer,
-          stripe_subscription_id: session.subscription,
-          updated_at: new Date().toISOString()
-        });
-      }
-    }
-
-    res.redirect(`${config.FRONTEND_URL}/dashboard?upgraded=true`);
-  } catch (error) {
-    console.error('Checkout success error:', error);
-    res.redirect(`${config.FRONTEND_URL}/dashboard`);
-  }
-});
-
 router.get('/subscription', auth, async (req, res) => {
   const { data } = await supabase
     .from('subscriptions')
@@ -128,6 +101,34 @@ router.get('/subscription', auth, async (req, res) => {
     .eq('user_id', req.user.id)
     .single();
   res.json(data || { plan: 'free' });
+});
+
+router.post('/verify-checkout', auth, async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
+
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (session.status === 'complete' && session.payment_status === 'paid') {
+      const userId = session.metadata?.user_id;
+      if (userId && userId === req.user.id) {
+        await supabase.from('subscriptions').upsert({
+          user_id: userId,
+          plan: 'pro',
+          stripe_customer_id: session.customer,
+          stripe_subscription_id: session.subscription,
+          updated_at: new Date().toISOString()
+        });
+        return res.json({ success: true });
+      }
+    }
+
+    res.status(400).json({ error: 'Invalid session' });
+  } catch (error) {
+    console.error('Verify checkout error:', error);
+    errorResponse(res, 500, 'VERIFY_ERROR', 'Failed to verify checkout');
+  }
 });
 
 module.exports = router;

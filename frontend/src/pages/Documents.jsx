@@ -48,9 +48,27 @@ export default function Documents() {
     const style = document.createElement('style');
     style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
     document.head.appendChild(style);
-    Promise.all([loadDocuments(), loadTheme()]).finally(() => setPageLoading(false));
+    verifyCheckout().finally(() => {
+      Promise.all([loadDocuments(), loadTheme()]).finally(() => setPageLoading(false));
+    });
     return () => document.head.removeChild(style);
   }, []);
+
+  const verifyCheckout = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    if (!sessionId) return;
+    try {
+      await authFetch(`${import.meta.env.VITE_API_URL}/api/billing/verify-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId })
+      });
+    } catch (e) {
+      console.error('Checkout verify error:', e);
+    }
+    window.history.replaceState({}, '', '/dashboard');
+  };
 
   const loadDocuments = async () => {
     const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/documents`);
