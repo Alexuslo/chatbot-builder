@@ -57,6 +57,7 @@ export default function Documents() {
   const verifyCheckout = async () => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
+    console.log('session_id from URL:', sessionId);
     if (!sessionId) return;
     try {
       const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/billing/verify-checkout`, {
@@ -64,6 +65,8 @@ export default function Documents() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId })
       });
+      const data = await res.json();
+      console.log('verify-checkout response:', res.status, data);
       if (res.ok) showToast('Pro plan activated!');
     } catch (e) {
       console.error('Checkout verify error:', e);
