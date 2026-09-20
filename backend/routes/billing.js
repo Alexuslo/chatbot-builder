@@ -97,12 +97,12 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
 router.get('/subscription', auth, async (req, res) => {
   res.set('Cache-Control', 'no-store');
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('subscriptions')
     .select('*')
-    .eq('user_id', req.user.id)
-    .single();
-  res.json(data || { plan: 'free' });
+    .eq('user_id', req.user.id);
+  console.log('[subscription] user:', req.user.id, 'rows:', data?.length, 'data:', JSON.stringify(data));
+  res.json(data?.[0] || { plan: 'free' });
 });
 
 router.post('/verify-checkout', auth, async (req, res) => {
@@ -114,14 +114,16 @@ router.post('/verify-checkout', auth, async (req, res) => {
 
     if (session.status === 'complete' && session.payment_status === 'paid') {
       const userId = session.metadata?.user_id;
+      console.log('[verify] session user_id:', userId, 'req.user.id:', req.user.id);
       if (userId && userId === req.user.id) {
-        await supabase.from('subscriptions').upsert({
+        const { data, error } = await supabase.from('subscriptions').upsert({
           user_id: userId,
           plan: 'pro',
           stripe_customer_id: session.customer,
           stripe_subscription_id: session.subscription,
           updated_at: new Date().toISOString()
-        });
+        }).select();
+        console.log('[verify] upsert result:', JSON.stringify(data), 'error:', error);
         stripeCache.set(session.subscription, { plan: 'pro', time: Date.now() });
         return res.json({ success: true });
       }
