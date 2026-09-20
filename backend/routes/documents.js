@@ -1,36 +1,32 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const { createClient } = require('@supabase/supabase-js');
 const { HfInference } = require('@huggingface/inference');
 const { subscriptionCheck, getSubscription } = require('../middleware/subscription');
+const auth = require('../middleware/auth');
+const config = require('../config');
+const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.txt', '.md', '.csv', '.json'];
+    const ext = require('path').extname(file.originalname).toLowerCase();
+    cb(null, allowed.includes(ext));
+  }
+});
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
-
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-
-  req.user = user;
-  next();
-};
+const hf = new HfInference(config.HUGGINGFACE_TOKEN);
 
 // Upload document (with plan check)
 router.post('/upload', auth, subscriptionCheck('document'), upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
     const content = fs.readFileSync(file.path, 'utf-8');
+    fs.unlinkSync(file.path);
 
     const { data: doc, error } = await supabase
       .from('documents')
@@ -64,7 +60,7 @@ router.post('/upload', auth, subscriptionCheck('document'), upload.single('file'
     res.json({ success: true, documentId: doc.id, subscription: req.subscription });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'UPLOAD_ERROR', 'Failed to upload document');
   }
 });
 
@@ -95,7 +91,7 @@ router.get('/', auth, async (req, res) => {
 // Delete document
 router.delete('/:id', auth, async (req, res) => {
   await supabase.from('chunks').delete().eq('document_id', req.params.id);
-  await supabase.from('documents').delete().eq('id', req.params.id);
+  await supabase.from('documents').delete().eq('id', req.params.id).eq('user_id', req.user.id);
   res.json({ success: true });
 });
 

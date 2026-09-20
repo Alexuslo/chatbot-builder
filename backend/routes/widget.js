@@ -1,21 +1,10 @@
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const auth = require('../middleware/auth');
+const config = require('../config');
+const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-  req.user = user;
-  next();
-};
 
 // Get current theme
 router.get('/theme', auth, async (req, res) => {
@@ -84,7 +73,7 @@ router.post('/theme', auth, async (req, res) => {
 
   console.log('Theme save result:', { data, error, count, userId: req.user.id });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return errorResponse(res, 500, 'THEME_SAVE_ERROR', 'Failed to save theme');
   res.json({ success: true });
 });
 
@@ -109,7 +98,7 @@ function generateWidgetCode({ publicId, theme, isPro, frontendUrl, apiBase }) {
     // Chat ad overlay - covers chat area for 5s on open
     const chatAd = document.createElement('div');
     chatAd.style.cssText = 'position:absolute;bottom:70px;right:0;width:400px;height:520px;background:white;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:10001;display:none;flex-direction:column;align-items:center;justify-content:center;';
-    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><a href="${frontendUrl}/login?returnTo=pricing" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#007bff;color:white;border-radius:6px;text-decoration:none;font-size:13px">Upgrade to Pro</a><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
+    chatAd.innerHTML = '<div style="font-size:32px;font-weight:700;color:#dc3545;letter-spacing:4px">ADS</div><div style="margin-top:12px;font-size:12px;color:#999">Closes in <span id="chatbot-ad-timer">5</span>s</div>';
     
     let chatAdTimer = null;
     function showChatAd() {
@@ -207,8 +196,8 @@ function resolveTheme(sub) {
 // Widget code - uses public_id, not userId
 router.get('/', auth, async (req, res) => {
   const userId = req.user.id;
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
+  const frontendUrl = config.FRONTEND_URL;
+  const apiBase = config.API_URL;
 
   // Get or create public_id
   let { data: sub } = await supabase
@@ -251,8 +240,8 @@ router.get('/', auth, async (req, res) => {
 // Widget preview page - reuses widget code generator
 router.get('/preview/:widgetId', async (req, res) => {
   const { widgetId } = req.params;
-  const frontendUrl = process.env.FRONTEND_URL || 'https://frontend-ecru-six-55.vercel.app';
-  const apiBase = process.env.API_URL || 'https://chatbot-builder-zks4.onrender.com';
+  const frontendUrl = config.FRONTEND_URL;
+  const apiBase = config.API_URL;
 
   const { data: sub } = await getSubByPublicId(widgetId);
   const isPro = sub?.plan === 'pro';

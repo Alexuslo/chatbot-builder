@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
+import { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -17,12 +19,13 @@ export default function Chat() {
   const [theme, setTheme] = useState({ bg: '#6c757d', hover: '#5a6268', text: '#ffffff' });
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const authFetch = useAuthenticatedFetch();
 
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
     document.head.appendChild(style);
-    checkUser();
     loadTheme();
     return () => document.head.removeChild(style);
   }, []);
@@ -31,22 +34,10 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/login');
-    }
-  };
-
   const loadTheme = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`, {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
-    });
+    const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`);
     const data = await response.json();
-    const t = THEMES[data.theme] || THEMES.blue;
+    const t = { ...(THEMES[data.theme] || THEMES.blue) };
     if (data.customBg) t.bg = data.customBg;
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
@@ -62,14 +53,8 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat`, {
+      const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
         body: JSON.stringify({ message: input })
       });
 
@@ -98,8 +83,14 @@ export default function Chat() {
     setLoading(false);
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {loading && <FullScreenSpinner />}
       <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.bg, color: theme.text, transition: 'background-color 1s ease, color 1s ease' }}>
         <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.text }}>
           ← Back to Documents
@@ -144,7 +135,7 @@ export default function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Ask about your documents..."
           disabled={loading}
           style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '8px', border: '1px solid #ddd' }}

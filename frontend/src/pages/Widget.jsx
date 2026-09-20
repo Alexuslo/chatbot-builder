@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { FullScreenSpinner } from '../components/Spinner';
 
 const THEMES = {
   blue: { bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -81,6 +82,7 @@ export default function Widget() {
       padding: 0,
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {loading && <FullScreenSpinner />}
       <div style={{ 
         padding: '12px 16px', 
         backgroundColor: theme.bg, 
@@ -135,7 +137,7 @@ export default function Widget() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Type your question..."
           disabled={loading}
           style={{ 

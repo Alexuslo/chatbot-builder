@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { useAuthenticatedFetch } from '../hooks/useAuthenticatedFetch';
+import { useToast } from '../components/Toast';
+import { FullScreenSpinner } from '../components/Spinner';
+import Toast from '../components/Toast';
 
 const THEMES = [
   { id: 'blue', name: 'Blue', bg: '#007bff', hover: '#0056b3', text: '#ffffff' },
@@ -25,70 +29,49 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [widgetCode, setWidgetCode] = useState('');
   const [plan, setPlan] = useState('free');
-  const [themeLoaded, setThemeLoaded] = useState(false);
   const [theme, setTheme] = useState({ bg: '#6c757d', hover: '#5a6268', text: '#ffffff' });
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('blue');
   const [customBg, setCustomBg] = useState('#007bff');
   const [customHover, setCustomHover] = useState('#0056b3');
   const [customText, setCustomText] = useState('#ffffff');
-  const [toast, setToast] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 2000);
-  };
+  const { session, signOut } = useAuth();
+  const authFetch = useAuthenticatedFetch();
+  const { toasts, addToast: showToast } = useToast();
 
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
     document.head.appendChild(style);
-    checkUser();
-    loadDocuments();
-    loadTheme();
+    Promise.all([loadDocuments(), loadTheme()]).finally(() => setPageLoading(false));
     return () => document.head.removeChild(style);
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/login');
-    }
-  };
-
   const loadDocuments = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/documents`, {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
-    });
+    const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/documents`);
     const result = await response.json();
     setDocuments(result.documents || []);
     setPlan(result.plan || 'free');
   };
 
   const loadTheme = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`, {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
-    });
+    const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`);
     const data = await response.json();
     setSelectedTheme(data.theme || 'blue');
     if (data.customBg) setCustomBg(data.customBg);
     if (data.customHover) setCustomHover(data.customHover);
     if (data.customText) setCustomText(data.customText);
     
-    const t = THEMES_COLORS[data.theme] || THEMES_COLORS.blue;
+    const t = { ...(THEMES_COLORS[data.theme] || THEMES_COLORS.blue) };
     if (data.customBg) t.bg = data.customBg;
     if (data.customHover) t.hover = data.customHover;
     if (data.customText) t.text = data.customText;
     setTheme(t);
-    setThemeLoaded(true);
   };
 
   const [dragOver, setDragOver] = useState(false);
@@ -98,16 +81,11 @@ export default function Documents() {
     setUploading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/documents/upload`, {
+      const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/documents/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        },
         body: formData
       });
 
@@ -128,13 +106,9 @@ export default function Documents() {
   };
 
   const saveTheme = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    await fetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`, {
+    setSaving(true);
+    await authFetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
-      },
       body: JSON.stringify({
         theme: selectedTheme,
         customBg: selectedTheme === 'custom' ? customBg : null,
@@ -142,9 +116,10 @@ export default function Documents() {
         customText: selectedTheme === 'custom' ? customText : null
       })
     });
+    setSaving(false);
     showToast('Theme saved!');
     setShowThemePicker(false);
-    const t = THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue;
+    const t = { ...(THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue) };
     if (selectedTheme === 'custom') {
       if (customBg) t.bg = customBg;
       if (customHover) t.hover = customHover;
@@ -154,10 +129,7 @@ export default function Documents() {
   };
 
   const getWidgetCode = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/widget`, {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
-    });
+    const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/widget`);
     const data = await response.json();
     setWidgetCode(data.widgetCode);
     navigator.clipboard.writeText(data.widgetCode);
@@ -169,12 +141,13 @@ export default function Documents() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     navigate('/login');
   };
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
+      {(pageLoading || uploading || deleting || saving) && <FullScreenSpinner />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1>My Documents</h1>
@@ -240,7 +213,7 @@ export default function Documents() {
             {plan === 'pro' ? 'PRO' : 'FREE'}
           </span>
         </div>
-        <p style={{ marginBottom: '15px', color: '#555' }}>
+        <p style={{ marginBottom: '15px', color: '#888' }}>
           {file ? file.name : 'Drag & drop a file here, or click to browse'}
         </p>
         <input
@@ -408,11 +381,7 @@ export default function Documents() {
           </div>
         </div>
       )}
-      {toast && (
-        <div style={{ position: 'fixed', top: '20px', right: '20px', padding: '12px 24px', backgroundColor: '#333', color: 'white', borderRadius: '8px', zIndex: 3000, fontSize: '14px' }}>
-          {toast}
-        </div>
-      )}
+      <Toast toasts={toasts} />
 
       {confirmDelete && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
@@ -421,12 +390,12 @@ export default function Documents() {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button 
                 onClick={async () => {
-                  const { data: { session } } = await supabase.auth.getSession();
-                  await fetch(`${import.meta.env.VITE_API_URL}/api/documents/${confirmDelete}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                  setDeleting(true);
+                  await authFetch(`${import.meta.env.VITE_API_URL}/api/documents/${confirmDelete}`, {
+                    method: 'DELETE'
                   });
                   setConfirmDelete(null);
+                  setDeleting(false);
                   loadDocuments();
                 }}
                 style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}

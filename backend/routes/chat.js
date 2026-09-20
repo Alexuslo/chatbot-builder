@@ -1,30 +1,24 @@
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const rateLimit = require('express-rate-limit');
 const { subscriptionCheck } = require('../middleware/subscription');
+const auth = require('../middleware/auth');
+const config = require('../config');
+const supabase = require('../config/supabase');
+const { errorResponse } = require('../utils/error');
 
 const router = express.Router();
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-
-  req.user = user;
-  next();
-};
+const widgetLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many requests, please try again later' }
+});
 
 async function callGroq(messages) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Authorization': `Bearer ${config.GROQ_API_KEY}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -45,12 +39,12 @@ async function callGroq(messages) {
 }
 
 // Public chat for widget (no auth required, searches all user's documents)
-router.post('/widget', async (req, res) => {
+router.post('/widget', widgetLimiter, async (req, res) => {
   try {
     const { message, widgetId } = req.body;
 
     if (!widgetId || !message) {
-      return res.status(400).json({ error: 'message and widgetId required' });
+      return errorResponse(res, 400, 'MISSING_FIELDS', 'message and widgetId required');
     }
 
     // Resolve public_id → userId
@@ -61,7 +55,7 @@ router.post('/widget', async (req, res) => {
       .single();
 
     if (!sub) {
-      return res.json({ response: 'Invalid widget ID.' });
+      return errorResponse(res, 404, 'WIDGET_NOT_FOUND', 'Invalid widget ID');
     }
 
     // Get all user's documents
@@ -71,7 +65,7 @@ router.post('/widget', async (req, res) => {
       .eq('user_id', sub.user_id);
 
     if (!docs || docs.length === 0) {
-      return res.json({ response: 'No documents found.' });
+      return errorResponse(res, 404, 'NO_DOCUMENTS', 'No documents found for this widget');
     }
 
     const context = docs.map(d => `[${d.name}]\n${d.content.substring(0, 2000)}`).join('\n\n');
@@ -87,7 +81,7 @@ router.post('/widget', async (req, res) => {
     res.json({ response });
   } catch (error) {
     console.error('Widget chat error:', error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'CHAT_ERROR', 'Failed to process message');
   }
 });
 
@@ -121,7 +115,7 @@ router.post('/', auth, subscriptionCheck('message'), async (req, res) => {
     res.json({ response, subscription: req.subscription });
   } catch (error) {
     console.error('Chat error:', error);
-    res.status(500).json({ error: error.message });
+    errorResponse(res, 500, 'CHAT_ERROR', 'Failed to process message');
   }
 });
 
