@@ -22,6 +22,7 @@ async function getSubscription(userId) {
     
     const cached = stripeCache.get(data.stripe_subscription_id);
     if (cached && Date.now() - cached.time < CACHE_TTL) {
+      console.log('[getSubscription] cache hit:', cached.plan, 'for sub:', data.stripe_subscription_id);
       return cached.plan;
     }
 
@@ -33,6 +34,7 @@ async function getSubscription(userId) {
       const isActive = subscription.status === 'active' || subscription.status === 'trialing';
       const plan = isActive ? 'pro' : 'free';
       
+      console.log('[getSubscription] Stripe status:', subscription.status, '-> plan:', plan);
       stripeCache.set(data.stripe_subscription_id, { plan, time: Date.now() });
       
       if (!isActive) {
@@ -44,6 +46,7 @@ async function getSubscription(userId) {
       }
     } catch (e) {
       // If Stripe check fails, trust the DB value
+      console.log('[getSubscription] Stripe check failed:', e.message);
     }
   }
   
