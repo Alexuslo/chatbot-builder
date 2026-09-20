@@ -11,7 +11,7 @@ export default function Pricing() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsLoggedIn(!!session);
       if (session) {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/billing/subscription`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/billing/subscription?t=${Date.now()}`, {
           headers: { 'Authorization': `Bearer ${session.access_token}` }
         });
         const data = await res.json();

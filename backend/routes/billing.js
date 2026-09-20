@@ -96,6 +96,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 });
 
 router.get('/subscription', auth, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const { data } = await supabase
     .from('subscriptions')
     .select('*')
