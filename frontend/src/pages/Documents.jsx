@@ -36,6 +36,9 @@ export default function Documents() {
   const [customHover, setCustomHover] = useState('#0056b3');
   const [customText, setCustomText] = useState('#ffffff');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
   const { session, signOut } = useAuth();
   const authFetch = useAuthenticatedFetch();
@@ -45,8 +48,7 @@ export default function Documents() {
     const style = document.createElement('style');
     style.textContent = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
     document.head.appendChild(style);
-    loadDocuments();
-    loadTheme();
+    Promise.all([loadDocuments(), loadTheme()]).finally(() => setPageLoading(false));
     return () => document.head.removeChild(style);
   }, []);
 
@@ -104,6 +106,7 @@ export default function Documents() {
   };
 
   const saveTheme = async () => {
+    setSaving(true);
     await authFetch(`${import.meta.env.VITE_API_URL}/api/widget/theme`, {
       method: 'POST',
       body: JSON.stringify({
@@ -113,6 +116,7 @@ export default function Documents() {
         customText: selectedTheme === 'custom' ? customText : null
       })
     });
+    setSaving(false);
     showToast('Theme saved!');
     setShowThemePicker(false);
     const t = { ...(THEMES_COLORS[selectedTheme] || THEMES_COLORS.blue) };
@@ -143,7 +147,7 @@ export default function Documents() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
-      {uploading && <FullScreenSpinner />}
+      {(pageLoading || uploading || deleting || saving) && <FullScreenSpinner />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1>My Documents</h1>
@@ -386,10 +390,12 @@ export default function Documents() {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button 
                 onClick={async () => {
+                  setDeleting(true);
                   await authFetch(`${import.meta.env.VITE_API_URL}/api/documents/${confirmDelete}`, {
                     method: 'DELETE'
                   });
                   setConfirmDelete(null);
+                  setDeleting(false);
                   loadDocuments();
                 }}
                 style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}

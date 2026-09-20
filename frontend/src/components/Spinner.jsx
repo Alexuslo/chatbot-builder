@@ -1,11 +1,10 @@
 export function Spinner({ size = 20, color = 'white' }) {
   return (
-    <span
+    <div
       style={{
-        display: 'inline-block',
         width: size,
         height: size,
-        border: `2px solid ${color}33`,
+        border: `3px solid rgba(255,255,255,0.2)`,
         borderTopColor: color,
         borderRadius: '50%',
         animation: 'spin 0.6s linear infinite',
@@ -22,7 +21,7 @@ export function FullScreenSpinner({ text = 'Wait please...' }) {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      backgroundColor: 'rgba(0,0,0,0.7)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
