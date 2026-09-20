@@ -12,43 +12,9 @@ const CACHE_TTL = 60 * 60 * 1000;
 async function getSubscription(userId) {
   const { data } = await supabase
     .from('subscriptions')
-    .select('plan, stripe_subscription_id')
+    .select('plan')
     .eq('user_id', userId)
     .single();
-  
-  // If has Stripe subscription, verify it's still active
-  if (data?.plan === 'pro' && data?.stripe_subscription_id && 
-      data.stripe_subscription_id !== 'mock_subscription') {
-    
-    const cached = stripeCache.get(data.stripe_subscription_id);
-    if (cached && Date.now() - cached.time < CACHE_TTL) {
-      console.log('[getSubscription] cache hit:', cached.plan, 'for sub:', data.stripe_subscription_id);
-      return cached.plan;
-    }
-
-    try {
-      const Stripe = require('stripe');
-      const stripe = new Stripe(config.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
-      const subscription = await stripe.subscriptions.retrieve(data.stripe_subscription_id);
-      
-      const isActive = subscription.status === 'active' || subscription.status === 'trialing';
-      const plan = isActive ? 'pro' : 'free';
-      
-      console.log('[getSubscription] Stripe status:', subscription.status, '-> plan:', plan);
-      stripeCache.set(data.stripe_subscription_id, { plan, time: Date.now() });
-      
-      if (!isActive) {
-        await supabase.from('subscriptions').update({
-          plan: 'free',
-          updated_at: new Date().toISOString()
-        }).eq('user_id', userId);
-        return 'free';
-      }
-    } catch (e) {
-      // If Stripe check fails, trust the DB value
-      console.log('[getSubscription] Stripe check failed:', e.message);
-    }
-  }
   
   return data?.plan || 'free';
 }
