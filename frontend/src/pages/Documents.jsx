@@ -59,11 +59,12 @@ export default function Documents() {
     const sessionId = params.get('session_id');
     if (!sessionId) return;
     try {
-      await authFetch(`${import.meta.env.VITE_API_URL}/api/billing/verify-checkout`, {
+      const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/billing/verify-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId })
       });
+      if (res.ok) showToast('Pro plan activated!');
     } catch (e) {
       console.error('Checkout verify error:', e);
     }
